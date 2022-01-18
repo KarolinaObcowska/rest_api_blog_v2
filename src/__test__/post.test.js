@@ -1,6 +1,7 @@
 process.env.NODE_ENV='test'
 import config from "../utils/config";
 import mongoose from "mongoose";
+import { Post } from "../models/post.model";
 import { app } from "../server";
 import request  from "supertest";
 
@@ -8,9 +9,9 @@ describe('Post API /api/post', () => {
     let token;
     let userId;
     let postId;
-
+    let commentId;
     beforeAll(async () => {
-         mongoose.connect(config.MONGODB_URI, {
+         await mongoose.connect(config.MONGODB_URI, {
             useNewUrlParser: true, useUnifiedTopology: true
         });
         const res = await request(app)
@@ -74,7 +75,12 @@ describe('Post API /api/post', () => {
                 content: "Some content for first test. Some content for first test. Some content for first test. Some content for first test. ",
             })
             postId = res.body.post._id
-        })
+            const com = await request(app)
+                    .post(`/api/post/comment/${postId}`)
+                    .auth(token, { type: 'bearer' })
+                    .send({ text: "Test comment"})
+                    commentId = com.body.comments[0]._id
+            })
 
         it('should fetch one post by specific id', async () => {
             const res = await request(app)
@@ -97,6 +103,44 @@ describe('Post API /api/post', () => {
                 expect(res.body).toHaveProperty('content');
         })
 
+        it('should add comment to specific post', async () => {
+            const res = await request(app)
+                .post(`/api/post/comment/${postId}`)
+                .auth(token, { type: 'bearer' })
+                .send({ text: "Test comment"})
+                expect(res.statusCode).toEqual(200)
+                commentId = res.body.comments[0].text
+        })
+
+        it('should not add comment to specific post because post does not exist', async () => {
+            const res = await request(app)
+                .post(`/api/post/comment/123`)
+                .auth(token, { type: 'bearer' })
+                .send({ text: "Test comment"})
+                expect(res.statusCode).toEqual(500)
+        })
+       
+        it('should delete specific comment from specific post', async () => {
+            const res = await request(app)
+                .delete(`/api/post/comment/${postId}/${commentId}`)
+                .auth(token, { type: 'bearer' })
+                expect(res.statusCode).toEqual(200)
+        })
+
+        it('should not delete specific comment from specific post because post does not exist', async () => {
+            const res = await request(app)
+                .delete(`/api/post/comment/123/${commentId}`)
+                .auth(token, { type: 'bearer' })
+                expect(res.statusCode).toEqual(500)
+        })
+
+        it('should not delete specific comment from specific post because comment does not exist', async () => {
+            const res = await request(app)
+                .delete(`/api/post/comment/${postId}/123`)
+                .auth(token, { type: 'bearer' })
+                expect(res.statusCode).toEqual(404)
+        })
+
         it('should delet post with specific id', async () => {
             const res = await request(app)
                 .delete(`/api/post/${postId}`)
@@ -112,20 +156,9 @@ describe('Post API /api/post', () => {
                 expect(res.statusCode).toEqual(404)
         })
 
-        it('should add comment to specific post', async () => {
-            const res = await request(app)
-                .post(`/api/post/comment/${postId}`)
-                .auth(token, { type: 'bearer' })
-                .send({ text: "Test comment"})
-                expect(res.statusCode).toEqual(200)
-        })
-
-        it('should not add comment to specific post because post does not exist', async () => {
-            const res = await request(app)
-                .post(`/api/post/comment/123`)
-                .auth(token, { type: 'bearer' })
-                .send({ text: "Test comment"})
-                expect(res.statusCode).toEqual(500)
-        })
     })
+    afterAll(async () => {
+        await Post.remove({})
+        await mongoose.disconnect()
+   })
 })

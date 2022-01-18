@@ -161,7 +161,7 @@ const errors = validationResult(req);
 
     post.comments.unshift(comment);
     await post.save();
-    res.status(200).json(post.comments)
+    res.status(200).json({comments: post.comments})
   } catch (err) {
     if (err.name === "ValidationError") {
       let errors = {};

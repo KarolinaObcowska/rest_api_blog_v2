@@ -11,11 +11,8 @@ export const signup = async (req, res, next) => {
     error.data = errors.array();
     throw error;
   }
-  const { email } = req.body;
-  const { firstname } = req.body;
-  const { lastname } = req.body;
-  const { password } = req.body;
-
+  const { email, firstname, lastname, password } = req.body;
+  
   try {
     const hash = await bcrypt.hash(password, 12);
     const newUser = new User({

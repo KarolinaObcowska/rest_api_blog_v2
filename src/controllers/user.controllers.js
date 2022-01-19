@@ -1,6 +1,7 @@
 import { User } from '../models/user.model.js';
 
 export const getMe = async (req, res, next) => {
+  console.log(req);
   try {
     const user = await User.findById(req.userId).select('-password');
     res.status(200).json({ msg: 'User fetched', user });

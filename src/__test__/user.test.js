@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
 import mongoose from 'mongoose';
 import request from 'supertest';
 import config from '../utils/config';
@@ -6,7 +8,8 @@ import { app } from '../server';
 
 describe('User API', () => {
   let token;
-  let userId;
+let userId;
+
   beforeAll(async () => {
     await mongoose.connect(config.MONGODB_URI, {
       useNewUrlParser: true,
@@ -61,31 +64,7 @@ describe('User API', () => {
       expect(res.statusCode).toEqual(401);
     });
   });
-  describe('User API /api/user', () => {
-    // it('should get user profile /api/user/me', async () => {
-    //     const res = await request(app)
-    //         .get('/api/user/me')
-    //         .auth(token, { type: 'bearer' })
-    //         expect(res.statusCode).toEqual(200)
-    //         expect(res.body).toHaveProperty('user')
-    // })
-    // it('should get user status /api/user', async () => {
-    //     const res = await request(app)
-    //         .get('/api/user')
-    //         .auth(token, { type: 'bearer' })
-    //         expect(res.statusCode).toEqual(200)
-    //         expect(res.body).toHaveProperty('status')
-    // })
-    // it('should update user status /api/user', async () => {
-    //     const res = await request(app)
-    //         .put('/api/user')
-    //         .auth(token, { type: 'bearer' })
-    //         .send({ status: "My new status" })
-    //         expect(res.statusCode).toEqual(200)
-    //         expect(res.body).toHaveProperty('status')
-    // })
-  });
-  afterAll(async () => {
+  afterAll(async() => {
     await User.deleteOne({ _id: userId });
   });
 });

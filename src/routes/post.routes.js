@@ -1,3 +1,4 @@
+/* eslint-disable import/extensions */
 import { Router } from 'express';
 import { check } from 'express-validator';
 import {
@@ -24,7 +25,7 @@ router
       check('title', 'Title is required'),
     ],
     protect,
-    createPost
+    createPost,
   );
 
 router
@@ -38,7 +39,7 @@ router
       check('title', 'Title is required'),
     ],
     protect,
-    updatePost
+    updatePost 
   )
   .delete(protect, deletePost);
 

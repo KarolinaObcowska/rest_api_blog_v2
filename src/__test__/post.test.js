@@ -26,7 +26,7 @@ describe('Post API /api/post', () => {
   it('should fetch all posts', async () => {
     const res = await request(app)
       .get('/api/post')
-      .set({ Authorization: 'Bearer:', token });
+      .auth(token, { type: 'bearer' })
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty('posts');
   });

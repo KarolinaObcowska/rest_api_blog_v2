@@ -8,7 +8,10 @@ This is backend app, which allows to SignIn and SignUp users and also to create,
 - MongoDb (mongoose)
 - JWT
 - Jest
+## Scripts
 
+To run this app, run `npm run dev` in root directory
+You can also run tests for this app `npm run test`
 ## What i learned?
 
 - ### Testing app with Jest

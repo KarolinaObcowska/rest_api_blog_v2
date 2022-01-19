@@ -4,13 +4,15 @@ const postSchema = new mongoose.Schema(
     {
         title: {
             type: String,
-            required: true,
-            minlength: 10
+            required: [true, 'Title is required.'],
+            minlength: [5, 'Title cannot be shorter than 5 characters'],
+            maxlength: [25, 'Title cannot be longer than 25 characters']
         },
         content: {
             type: String,
-            reqired: true,
-            minlength: 30
+            reqired: [true, 'Content is required'],
+            minlength: [30, 'Content cannot be shorter than 30 characters'],
+            maxlength: [2000, 'Content cannot be longer than 3000 characters']
         },
         user: {
             type: mongoose.SchemaTypes.ObjectId,
@@ -25,7 +27,8 @@ const postSchema = new mongoose.Schema(
                 },
                 text: {
                     type: String,
-                    required: true
+                    reqired: [true, 'Comment text is required'],
+
                 },
                 date: {
                     type: Date,

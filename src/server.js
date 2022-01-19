@@ -1,8 +1,9 @@
 import express from 'express'
 import morgan from 'morgan'
+import cors from 'cors'
 import config from "./utils/config.js";
 import { info } from "./utils/logger.js";
-import cors from 'cors'
+import { errorHandler } from './middleware/errors.js';
 import userRouter from './routes/user.routes.js'
 import postRouter from './routes/post.routes.js'
 import authRouter from './routes/auth.routes.js';
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
+app.use(errorHandler);
 app.use((err, req, res, next) => {
   return res.status(err.statusCode).send({
     error: {
@@ -22,7 +24,7 @@ app.use((err, req, res, next) => {
       data: err.data
     }
   });
-  next()
+  next(err)
 });
 
 app.use('/api/user', userRouter);

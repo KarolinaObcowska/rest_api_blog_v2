@@ -44,9 +44,14 @@ export const updateStatus = async (req, res, next) => {
           await user.save();
           res.status(200).json({ msg: 'Status updated' })
     } catch (err) {
-        if (!err.statusCode) {
+        if (err.name == 'ValidationError') {
+            console.error('Error Validating!', err);
+            res.status(422).json(err.message);
+        } else {
+          if (!err.statusCode) {
             err.statusCode = 500;
           }
           next(err);
+        }
     }
 }

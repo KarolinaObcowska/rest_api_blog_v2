@@ -8,7 +8,7 @@ export const createPost = async (req, res, next) => {
   if (!errors.isEmpty()) {
     const error = new Error('Validation failed, entered data is incorrect.');
     error.statusCode = 422;
-    throw error;
+    next(error);
   }
   try {
     const title = req.body.title;
@@ -25,17 +25,15 @@ export const createPost = async (req, res, next) => {
     await user.save();
     res.status(201).json({ msg: 'Post created successfully!', post: post });
   } catch (err) {
-    if (err.name === "ValidationError") {
-      let errors = {};
-      Object.keys(err.errors).forEach((key) => {
-        errors[key] = err.errors[key].message;
-      });
-      return res.status(400).send(errors);
-    }    
+    if (err.name == 'ValidationError') {
+      console.error('Error Validating!', err);
+      res.status(422).json(err.message);
+  } else {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
     next(err);
+  }
   }
 }
 
@@ -101,17 +99,15 @@ const post = await Post.findById(postId)
     const result = await post.save();
     res.status(200).json(result);
 } catch (err) {
-  if (err.name === "ValidationError") {
-    let errors = {};
-    Object.keys(err.errors).forEach((key) => {
-      errors[key] = err.errors[key].message;
-    });
-    return res.status(400).send(errors);
-  }  
-    if (!err.statusCode) {
-      err.statusCode = 500;
-    }
-    next(err);
+  if (err.name == 'ValidationError') {
+    console.error('Error Validating!', err);
+    res.status(422).json(err.message);
+} else {
+  if (!err.statusCode) {
+    err.statusCode = 500;
+  }
+  next(err);
+}
   };
 };
 
@@ -163,17 +159,15 @@ const errors = validationResult(req);
     await post.save();
     res.status(200).json({comments: post.comments})
   } catch (err) {
-    if (err.name === "ValidationError") {
-      let errors = {};
-      Object.keys(err.errors).forEach((key) => {
-        errors[key] = err.errors[key].message;
-      });
-      return res.status(400).send(errors);
-    }
+    if (err.name == 'ValidationError') {
+      console.error('Error Validating!', err);
+      res.status(422).json(err.message);
+  } else {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
     next(err);
+  }
   }
 };
 
@@ -202,163 +196,3 @@ try {
 }
 }
 
-
-// export const createPost = async (req, res, next) => {
-//     const errors = validationResult(req);
-//     if (!errors.isEmpty()) {
-//       const error = new Error('Validation failed, entered data is incorrect.');
-//       error.statusCode = 422;
-//       next(error)
-//     }
-//     try {
-//       const { title, content } = req.body;
-//       const newPost = await createPostHelper(title, content, req.userId);
-//       res.status(201).json(newPost);
-//     } catch (error) {
-//       if (error.name === "ValidationError") {
-//         let errors = {};
-//         Object.keys(error.errors).forEach((key) => {
-//           errors[key] = error.errors[key].message;
-//         });
-//       return res.status(400).send(errors);
-//       }
-//     }
-// }
-
-// export const getPost = async (req, res, next) => {
-//   try {
-//     const post = await getPostById(req.params.id);
-//     res.status(200).json(post);
-//   } catch (err) {
-//     if (!err.statusCode) {
-//       err.statusCode = 500;
-//     }
-//     next(err);
-//   }
-// }
-
-// export const getPosts = async (req, res, next) => {
-//   try {
-//     const posts = await getAllPosts();
-//     res.status(200).json(posts)
-//   } catch (err) {
-//     if (!err.statusCode){
-//       err.statusCode = 500;
-//     }
-//     next(err)
-//   }
-
-// }
-
-// export const updatePost = async (req,res, next) => {
-//   const errors = validationResult(req);
-//   if (!errors.isEmpty()) {
-//     const error = new Error('Validation failed, entered data is incorrect.');
-//     error.statusCode = 422;
-//     throw error;
-//   }
-//   try {
-//       const newPost = {
-//         title: req.body.title,
-//         content: req.body.content
-//       }
-//       const updatedPost = await updatePostHandler(req.params.id, req.userId, newPost)
-//       res.status(200).json(updatedPost);
-//   } catch (err) {
-//     if (error.name === "ValidationError") {
-//       let errors = {};
-//       Object.keys(error.errors).forEach((key) => {
-//         errors[key] = error.errors[key].message;
-//       });
-//       return res.status(400).send(errors);
-//     }
-//     next(error);
-//     };
-// };
-
-// export const deletePost = async (req, res, next) => {
-//   const postId = req.params.id;
-//   try {
-//   const post = await Post.findById(postId);
-//   if (!post) {
-//     const error = new Error('Could not find post.');
-//     error.statusCode = 404;
-//     throw error;
-//   }
-//   if (post.user._id.toString() !== req.userId) {
-//     const error = new Error('Not authorized!');
-//     error.statusCode = 403;
-//     throw error;
-//   }
-//     await Post.findByIdAndRemove(postId);
-//     const user = await User.findById(req.userId);
-//     user.posts.pull(postId);
-//     await user.save();
-//     res.status(200).json({ msg: 'Deleted post' });
-//   } catch (err) {
-//     if (!err.statusCode) {
-//       err.statusCode = 500;
-//     }
-//     next(err);
-//   }
-// }
-
-// export const createComment = async (req, res, next) => {
-//   const errors = validationResult(req);
-//     if (!errors.isEmpty()) {
-//       const error = new Error('Validation failed, entered data is incorrect.');
-//       error.statusCode = 422;
-//       throw error;
-//     }
-//     try {
-//       const user = await User.findById(req.userId);
-//       const post = await Post.findById(req.params.id);
-
-//       const comment = {
-//         text: req.body.text,
-//         user: req.userId,
-//       };
-
-//       post.comments.unshift(comment);
-//       await post.save();
-//       res.status(200).json(post.comments)
-//     } catch (err) {
-//       if (error.name === "ValidationError") {
-//         let errors = {};
-//         Object.keys(error.errors).forEach((key) => {
-//           errors[key] = error.errors[key].message;
-//         });
-//         return res.status(400).send(errors);
-//       }
-//       next(error);
-//     }
-// };
-
-// export const deleteComment = async (req, res, next) => {
-//   try {
-//     const post = await Post.findById(req.params.id);
-//     const comment = post.comments.find(comment => comment.id === req.params.commentId);
-
-//     if (!comment) {
-//       const error = new Error('Could not find comment.');
-//       error.statusCode = 404;
-//       throw error;
-//     };
-
-//     if (comment.user._id.toString() !== req.userId) {
-//       const error = new Error('Not authorized!');
-//       error.statusCode = 403;
-//       throw error;
-//     };
-
-//     const removeIndex = post.comments.map(comment => comment.user).indexOf(req.userId);
-//     post.comments.splice(removeIndex, 1);
-//     await post.save();
-//     res.status(200).json(post.comments);
-//   } catch (err) {
-//     if (!err.statusCode) {
-//       err.statusCode = 500;
-//     }
-//     next(err);
-//   }
-// }

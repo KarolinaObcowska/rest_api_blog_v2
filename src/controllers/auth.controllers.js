@@ -28,10 +28,15 @@ export const signup = async (req, res, next) => {
         const token = signJwt(result.email, result._id)
         res.status(200).json({ msg: 'User created', userId: result._id, token: token });
     } catch (err) {
-        if (!err.statusCode) {
-            err.statusCode = 500;
-          }
-          next(err);
+      if (err.name == 'ValidationError') {
+        console.error('Error Validating!', err);
+        res.status(422).json(err.message);
+    } else {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    }
     }
 }
 
@@ -56,9 +61,14 @@ export const signin = async (req, res, next) => {
     const token = signJwt(newUser.email, newUser._id)
     res.status(200).json({ msg: 'Logged', token: token, userId: newUser._id.toString() })
     } catch (err){
-        if (!err.statusCode) {
+      if (err.name == 'ValidationError') {
+        console.error('Error Validating!', err);
+        res.status(422).json(err.message);
+    } else {
+      if (!err.statusCode) {
         err.statusCode = 500;
+      }
+      next(err);
     }
-    next(err);
   }
 }

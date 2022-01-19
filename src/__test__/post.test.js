@@ -21,6 +21,7 @@ describe('Post API /api/post', () => {
         userId = res.body.userId
     })
 
+
     it('should fetch all posts', async () => {
         const res = await request(app)
             .get('/api/post')
@@ -51,7 +52,7 @@ describe('Post API /api/post', () => {
                 title: "Test",
                 content: "Some content for first test. ",
             })
-            expect(res.statusCode).toEqual(400)
+            expect(res.statusCode).toEqual(422)
     })
     
     it('should not create a new post due to lack of authorization', async () => {

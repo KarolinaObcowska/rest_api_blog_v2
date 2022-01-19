@@ -16,7 +16,7 @@ describe('Post API /api/post', () => {
         });
         const res = await request(app)
             .post('/api/auth/signin')
-            .send({ email: "test@test.pl", password: "testtest"})
+            .send({ email: "test2@test.pl", password: "testtest"})
         token = res.body.token
         userId = res.body.userId
     })
@@ -158,8 +158,7 @@ describe('Post API /api/post', () => {
         })
 
     })
-    afterAll(async () => {
+    afterAll(async() => {
         await Post.remove({})
-        await mongoose.disconnect()
-   })
+    })
 })

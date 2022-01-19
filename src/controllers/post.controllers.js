@@ -1,4 +1,5 @@
 import { validationResult } from "express-validator";
+import { handleValidationErrors } from "../middleware/errors";
 import { Post } from '../models/post.model.js';
 import { User } from '../models/user.model.js';
 
@@ -26,8 +27,7 @@ export const createPost = async (req, res, next) => {
     res.status(201).json({ msg: 'Post created successfully!', post: post });
   } catch (err) {
     if (err.name == 'ValidationError') {
-      console.error('Error Validating!', err);
-      res.status(422).json(err.message);
+      handleValidationErrors(err, res);
   } else {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -100,8 +100,7 @@ const post = await Post.findById(postId)
     res.status(200).json(result);
 } catch (err) {
   if (err.name == 'ValidationError') {
-    console.error('Error Validating!', err);
-    res.status(422).json(err.message);
+    handleValidationErrors(err, res)
 } else {
   if (!err.statusCode) {
     err.statusCode = 500;
@@ -160,8 +159,7 @@ const errors = validationResult(req);
     res.status(200).json({comments: post.comments})
   } catch (err) {
     if (err.name == 'ValidationError') {
-      console.error('Error Validating!', err);
-      res.status(422).json(err.message);
+      handleValidationErrors(err, res);
   } else {
     if (!err.statusCode) {
       err.statusCode = 500;

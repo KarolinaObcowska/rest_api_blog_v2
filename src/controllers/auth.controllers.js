@@ -18,15 +18,21 @@ export const signup = async (req, res, next) => {
     
     try {
         const hash = await bcrypt.hash(password, 12);
-        const user = new User({
+        const newUser = new User({
             email: email,
             firstname: firstname,
             lastname: lastname,
             password: hash
         });
-        const result = await user.save();
+        let user = await User.findOne({ email: email });
+        if(user) {
+          const error = new Error('A user with this email already exists. Please sign in.');
+          error.statusCode = 409;
+          throw error;
+        }
+        const result = await newUser.save();
         const token = signJwt(result.email, result._id)
-        res.status(200).json({ msg: 'User created', userId: result._id, token: token });
+        res.status(201).json({ msg: 'User created', userId: result._id, token: token });
     } catch (err) {
       if (err.name == 'ValidationError') {
         console.error('Error Validating!', err);
@@ -43,7 +49,6 @@ export const signup = async (req, res, next) => {
 export const signin = async (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
-    let newUser;
     try {
     let user = await User.findOne({ email: email });
     if (!user) {
@@ -51,15 +56,14 @@ export const signin = async (req, res, next) => {
         error.statusCode = 401;
         throw error;
       }
-    newUser = user;
     const checkPassword = await bcrypt.compare(password, user.password);
     if (!checkPassword) {
         const error = new Error('Wrong password!');
         error.statusCode = 401;
         throw error;
     }
-    const token = signJwt(newUser.email, newUser._id)
-    res.status(200).json({ msg: 'Logged', token: token, userId: newUser._id.toString() })
+    const token = signJwt(user.email, user._id)
+    res.status(200).json({ msg: 'Logged', token: token, userId: user._id.toString() })
     } catch (err){
       if (err.name == 'ValidationError') {
         console.error('Error Validating!', err);

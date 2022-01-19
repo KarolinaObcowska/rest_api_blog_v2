@@ -1,8 +1,8 @@
-import express from 'express'
-import morgan from 'morgan'
-import cors from 'cors'
-import userRouter from './routes/user.routes.js'
-import postRouter from './routes/post.routes.js'
+import express from 'express';
+import morgan from 'morgan';
+import cors from 'cors';
+import userRouter from './routes/user.routes.js';
+import postRouter from './routes/post.routes.js';
 import authRouter from './routes/auth.routes.js';
 
 export const app = express();
@@ -17,10 +17,10 @@ app.use((err, req, res, next) => {
   return res.status(err.statusCode).send({
     error: {
       msg: err.message,
-      data: err.data
-    }
+      data: err.data,
+    },
   });
-  next(err)
+  next(err);
 });
 
 app.use('/api/user', userRouter);
@@ -30,5 +30,3 @@ app.use('/api/auth', authRouter);
 app.get('/', (req, res) => {
   res.send('API running');
 });
-
-

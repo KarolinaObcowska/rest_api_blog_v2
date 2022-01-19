@@ -1,5 +1,6 @@
 {
     "eslint.run": "onSave",
     "eslint.format.enable": true,
-    "prettier.jsxSingleQuote": true
+    "prettier.jsxSingleQuote": true,
+    "editor.formatOnSave": true
 }
